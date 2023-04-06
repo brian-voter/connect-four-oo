@@ -9,12 +9,14 @@ const DEFAULT_BOARD_WIDTH = 7;
 const DEFAULT_BOARD_HEIGHT = 6;
 
 class Game {
-
-  constructor(width = DEFAULT_BOARD_WIDTH, height = DEFAULT_BOARD_HEIGHT) {
+  constructor(player1 = new Player("red"), player2 = new Player("blue"),
+    width = DEFAULT_BOARD_WIDTH, height = DEFAULT_BOARD_HEIGHT) {
+    this.player1 = player1;
+    this.player2 = player2;
     this.width = width;
     this.height = height;
     this.board = []; // array of rows, each row is array of cells  (board[y][x])
-    this.currPlayer = 1; // active player: 1 or 2
+    this.currPlayer = player1; // active player: 1 or 2
     this.gameOver = false;
 
     this.makeBoard();
@@ -31,7 +33,6 @@ class Game {
   }
 
   /** makeHtmlBoard: make HTML table and row of column tops. */
-
   makeHtmlBoard() {
     const htmlBoard = document.getElementById('board');
     htmlBoard.innerHTML = "";
@@ -77,7 +78,7 @@ class Game {
   placeInTable(y, x) {
     const piece = document.createElement('div');
     piece.classList.add('piece');
-    piece.classList.add(`p${this.currPlayer}`);
+    piece.style.backgroundColor = this.currPlayer.color;
     piece.style.top = -50 * (y + 2);
 
     const spot = document.getElementById(`c-${y}-${x}`);
@@ -113,7 +114,7 @@ class Game {
 
     // check for win
     if (this.checkForWin()) {
-      return this.endGame(`Player ${this.currPlayer} won!`);
+      return this.endGame(`${this.currPlayer.color} player wins!`);
     }
 
     // check for tie
@@ -122,7 +123,8 @@ class Game {
     }
 
     // switch players
-    this.currPlayer = this.currPlayer === 1 ? 2 : 1;
+    this.currPlayer = this.currPlayer.equals(this.player1)
+      ? this.player2 : this.player1;
   }
 
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -141,7 +143,7 @@ class Game {
           x < this.width &&
           this.board[y][x] === this.currPlayer
       );
-    }
+    };
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -161,15 +163,35 @@ class Game {
   }
 }
 
+class Player {
+  constructor(color) {
+    this.color = color;
+  }
+
+  equals(player) {
+    return this.color === player.color;
+  }
+}
+
 let game = null;
+let startButton = null;
+let player1ColorInput = null;
+let player2ColorInput = null;
 
 function startNewGame(evt) {
-  game = new Game(6, 7);
-  evt.target.innerHTML = "Restart Game"
+  evt.preventDefault();
+
+  const player1 = new Player(player1ColorInput.value);
+  const player2 = new Player(player2ColorInput.value);
+
+  game = new Game(player1, player2, 6, 7);
+  evt.target.innerHTML = "Restart Game";
 }
 
 addEventListener("load", () => {
-  const startButton = document.getElementById("startGameButton");
+  startButton = document.getElementById("startGameButton");
+  player1ColorInput = document.getElementById("player1ColorInput");
+  player2ColorInput = document.getElementById("player2ColorInput");
 
   if (startButton) { // check because during a test there's no button HTML
     startButton.addEventListener("click", startNewGame);
