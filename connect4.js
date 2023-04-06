@@ -14,8 +14,8 @@ class Game {
     this.width = width;
     this.height = height;
     this.board = []; // array of rows, each row is array of cells  (board[y][x])
-    this.htmlBoard = undefined;
     this.currPlayer = 1; // active player: 1 or 2
+    this.gameOver = false;
 
     this.makeBoard();
     this.makeHtmlBoard();
@@ -33,7 +33,8 @@ class Game {
   /** makeHtmlBoard: make HTML table and row of column tops. */
 
   makeHtmlBoard() {
-    this.htmlBoard = document.getElementById('board');
+    const htmlBoard = document.getElementById('board');
+    htmlBoard.innerHTML = "";
 
     // make column tops (clickable area for adding a piece to that column)
     const top = document.createElement('tr');
@@ -46,7 +47,7 @@ class Game {
       top.append(headCell);
     }
 
-    this.htmlBoard.append(top);
+    htmlBoard.append(top);
 
     // make main part of board
     for (let y = 0; y < this.height; y++) {
@@ -58,12 +59,11 @@ class Game {
         row.append(cell);
       }
 
-      this.htmlBoard.append(row);
+      htmlBoard.append(row);
     }
   }
 
   /** findSpotForCol: given column x, return top empty y (null if filled) */
-
   findSpotForCol(x) {
     for (let y = this.height - 1; y >= 0; y--) {
       if (!this.board[y][x]) {
@@ -86,11 +86,17 @@ class Game {
 
   /** endGame: announce game end */
   endGame(msg) {
-    window.alert(msg);
+    if (!this.gameOver) {
+      this.gameOver = true;
+      alert(msg);
+    }
   }
 
   /** handleClick: handle click of column top to play piece */
   handleClick(evt) {
+    if (this.gameOver) {
+      return;
+    }
 
     // get x from ID of clicked cell
     const x = +evt.target.id;
@@ -122,10 +128,7 @@ class Game {
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
   checkForWin() {
 
-    //FIXME: is this use of self/this idiomatic?
-    const self = this;
-
-    function _win(cells) {
+    const _win = cells => {
       // Check four cells to see if they're all color of current player
       //  - cells: list of four (y, x) cells
       //  - returns true if all are legal coordinates & all match currPlayer
@@ -133,10 +136,10 @@ class Game {
       return cells.every(
         ([y, x]) =>
           y >= 0 &&
-          y < self.height &&
+          y < this.height &&
           x >= 0 &&
-          x < self.width &&
-          self.board[y][x] === self.currPlayer
+          x < this.width &&
+          this.board[y][x] === this.currPlayer
       );
     }
 
@@ -158,4 +161,17 @@ class Game {
   }
 }
 
-new Game(6, 7);
+let game = null;
+
+function startNewGame(evt) {
+  game = new Game(6, 7);
+  evt.target.innerHTML = "Restart Game"
+}
+
+addEventListener("load", () => {
+  const startButton = document.getElementById("startGameButton");
+
+  if (startButton) { // check because during a test there's no button HTML
+    startButton.addEventListener("click", startNewGame);
+  }
+});
