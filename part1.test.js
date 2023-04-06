@@ -5,23 +5,8 @@ let testGame;
 beforeEach(function () {
   console.log("Run once before each test starts");
 
-  //FIXME: is this kosher?
-  cleanUp();
-
   testGame = new Game(6, 7);
 });
-
-function cleanUp() {
-  let board = document.getElementById("board");
-  if (board) {
-    board.remove();
-  }
-
-  board = document.createElement("table");
-  board.setAttribute("id", "board");
-  document.getElementById("game").append(board);
-}
-
 
 describe('makeBoard', function () {
 
