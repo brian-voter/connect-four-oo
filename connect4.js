@@ -8,6 +8,7 @@
 const DEFAULT_BOARD_WIDTH = 7;
 const DEFAULT_BOARD_HEIGHT = 6;
 
+//TODO: docstring
 class Game {
   constructor(player1 = new Player("red"), player2 = new Player("blue"),
     width = DEFAULT_BOARD_WIDTH, height = DEFAULT_BOARD_HEIGHT) {
@@ -21,6 +22,7 @@ class Game {
 
     this.makeBoard();
     this.makeHtmlBoard();
+    this.handleClick = this.handleClick.bind(this);
   }
 
   /** makeBoard: create in-JS board structure:
@@ -40,7 +42,7 @@ class Game {
     // make column tops (clickable area for adding a piece to that column)
     const top = document.createElement('tr');
     top.setAttribute('id', 'column-top');
-    top.addEventListener('click', this.handleClick.bind(this));
+    top.addEventListener('click', this.handleClick);
 
     for (let x = 0; x < this.width; x++) {
       const headCell = document.createElement('td');
@@ -123,8 +125,7 @@ class Game {
     }
 
     // switch players
-    this.currPlayer = this.currPlayer.equals(this.player1)
-      ? this.player2 : this.player1;
+    this.currPlayer = this.currPlayer === this.player1 ? this.player2 : this.player1;
   }
 
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -163,13 +164,10 @@ class Game {
   }
 }
 
+//TODO: docstring
 class Player {
   constructor(color) {
     this.color = color;
-  }
-
-  equals(player) {
-    return this.color === player.color;
   }
 }
 
